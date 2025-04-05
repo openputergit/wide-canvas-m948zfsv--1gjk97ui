@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neubrutalism Kanban Board</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background-color: #f0f0f0;
+        }
+        .neu-brutal {
+            border: 3px solid #000;
+            box-shadow: 4px 4px 0 #000;
+            transition: all 0.2s ease;
+        }
+        .neu-brutal:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 6px 6px 0 #000;
+        }
+        .kanban-column {
+            min-height: 500px;
+        }
+        .task-card {
+            cursor: grab;
+        }
+        .task-card:active {
+            cursor: grabbing;
+        }
+        .dragging {
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+    <h1 class="text-4xl font-bold mb-8 neu-brutal bg-yellow-300 inline-block p-4">Tech-Business Kanban Board</h1>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- Backlog -->
+        <div class="kanban-column bg-white p-4 neu-brutal" data-column="backlog">
+            <h2 class="text-xl font-bold mb-4 bg-red-300 p-2 neu-brutal">Backlog</h2>
+            <div class="task-list space-y-3">
+                <div class="task-card neu-brutal bg-white p-3" draggable="true">
+                    <h3 class="font-bold">Feature Request Analysis</h3>
+                    <p class="text-sm">Review and analyze new feature requests from business team</p>
+                    <span class="inline-block bg-blue-200 px-2 mt-2 neu-brutal">Priority: High</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- In Progress -->
+        <div class="kanban-column bg-white p-4 neu-brutal" data-column="progress">
+            <h2 class="text-xl font-bold mb-4 bg-blue-300 p-2 neu-brutal">In Progress</h2>
+            <div class="task-list space-y-3">
+                <div class="task-card neu-brutal bg-white p-3" draggable="true">
+                    <h3 class="font-bold">API Integration</h3>
+                    <p class="text-sm">Implementing new payment gateway API</p>
+                    <span class="inline-block bg-yellow-200 px-2 mt-2 neu-brutal">In Development</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Review -->
+        <div class="kanban-column bg-white p-4 neu-brutal" data-column="review">
+            <h2 class="text-xl font-bold mb-4 bg-purple-300 p-2 neu-brutal">Review</h2>
+            <div class="task-list space-y-3">
+                <div class="task-card neu-brutal bg-white p-3" draggable="true">
+                    <h3 class="font-bold">Business Logic Review</h3>
+                    <p class="text-sm">Validate implementation with business requirements</p>
+                    <span class="inline-block bg-purple-200 px-2 mt-2 neu-brutal">Pending Review</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Done -->
+        <div class="kanban-column bg-white p-4 neu-brutal" data-column="done">
+            <h2 class="text-xl font-bold mb-4 bg-green-300 p-2 neu-brutal">Done</h2>
+            <div class="task-list space-y-3">
+                <div class="task-card neu-brutal bg-white p-3" draggable="true">
+                    <h3 class="font-bold">Sprint Planning</h3>
+                    <p class="text-sm">Completed sprint planning with stakeholders</p>
+                    <span class="inline-block bg-green-200 px-2 mt-2 neu-brutal">Completed</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button class="mt-6 bg-pink-300 p-3 neu-brutal" onclick="addNewTask()">
+        <i class="bi bi-plus-circle"></i> Add New Task
+    </button>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const taskCards = document.querySelectorAll('.task-card');
+            const taskLists = document.querySelectorAll('.task-list');
+
+            taskCards.forEach(card => {
+                card.addEventListener('dragstart', dragStart);
+                card.addEventListener('dragend', dragEnd);
+            });
+
+            taskLists.forEach(list => {
+                list.addEventListener('dragover', dragOver);
+                list.addEventListener('drop', drop);
+            });
+        });
+
+        function dragStart(e) {
+            e.target.classList.add('dragging');
+        }
+
+        function dragEnd(e) {
+            e.target.classList.remove('dragging');
+        }
+
+        function dragOver(e) {
+            e.preventDefault();
+        }
+
+        function drop(e) {
+            e.preventDefault();
+            const draggable = document.querySelector('.dragging');
+            const dropZone = e.target.closest('.task-list');
+            if (dropZone && draggable) {
+                dropZone.appendChild(draggable);
+            }
+        }
+
+        function addNewTask() {
+            const taskTitle = prompt('Enter task title:');
+            if (taskTitle) {
+                const taskDescription = prompt('Enter task description:');
+                const newTask = document.createElement('div');
+                newTask.className = 'task-card neu-brutal bg-white p-3';
+                newTask.draggable = true;
+                newTask.innerHTML = `
+                    <h3 class="font-bold">${taskTitle}</h3>
+                    <p class="text-sm">${taskDescription}</p>
+                    <span class="inline-block bg-blue-200 px-2 mt-2 neu-brutal">New Task</span>
+                `;
+                newTask.addEventListener('dragstart', dragStart);
+                newTask.addEventListener('dragend', dragEnd);
+                
+                const backlogList = document.querySelector('[data-column="backlog"] .task-list');
+                backlogList.appendChild(newTask);
+            }
+        }
+    </script>
+<script>document.body.addEventListener('wheel', e => { if (!e.ctrlKey) return; e.preventDefault(); return }, { passive: false })</script>
+	</body>
+</html>
